@@ -237,9 +237,9 @@ const i18n = {
 const supportedLanguages = new Set(['ja', 'en', 'zh']);
 const tabIds = new Set(['home', 'about', 'works', 'contact']);
 const uiText = {
-  ja: { dark: 'ダークモードを切り替え', light: 'ライトモードに切り替え', menuOpen: 'メニューを開く', menuClose: 'メニューを閉じる', top: 'ページの先頭へ', map: '旅行マップ', projectPrev: '前の作品', projectNext: '次の作品' },
-  en: { dark: 'Switch to dark mode', light: 'Switch to light mode', menuOpen: 'Open menu', menuClose: 'Close menu', top: 'Back to top', map: 'Travel map', projectPrev: 'Previous project', projectNext: 'Next project' },
-  zh: { dark: '切换到深色模式', light: '切换到浅色模式', menuOpen: '打开菜单', menuClose: '关闭菜单', top: '返回顶部', map: '旅行地图', projectPrev: '上一个作品', projectNext: '下一个作品' }
+  ja: { dark: 'ダークモードを切り替え', light: 'ライトモードに切り替え', menuOpen: 'メニューを開く', menuClose: 'メニューを閉じる', top: 'ページの先頭へ', map: '旅行マップ' },
+  en: { dark: 'Switch to dark mode', light: 'Switch to light mode', menuOpen: 'Open menu', menuClose: 'Close menu', top: 'Back to top', map: 'Travel map' },
+  zh: { dark: '切换到深色模式', light: '切换到浅色模式', menuOpen: '打开菜单', menuClose: '关闭菜单', top: '返回顶部', map: '旅行地图' }
 };
 
 function readPreference(key, fallback) {
@@ -272,8 +272,6 @@ function updateUiLabels(lang) {
   menu.setAttribute('aria-label', menu.getAttribute('aria-expanded') === 'true' ? labels.menuClose : labels.menuOpen);
   document.getElementById('backToTop').setAttribute('aria-label', labels.top);
   document.querySelector('iframe').setAttribute('title', labels.map);
-  document.getElementById('projectPrev').setAttribute('aria-label', labels.projectPrev);
-  document.getElementById('projectNext').setAttribute('aria-label', labels.projectNext);
 }
 
 function setLanguage(lang) {
@@ -309,7 +307,7 @@ function closeMobileMenu() {
   updateUiLabels(currentLanguage());
 }
 
-let galleryController;
+let marqueeController;
 let aosReady = false;
 
 function showTab(tabId) {
@@ -326,7 +324,7 @@ function showTab(tabId) {
     else button.removeAttribute('aria-current');
   });
   closeMobileMenu();
-  if (galleryController) galleryController.update();
+  if (marqueeController) marqueeController.update();
   initVisibleSwipers();
   if (aosReady && typeof window.AOS.refreshHard === 'function') window.AOS.refreshHard();
   requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }));
@@ -347,59 +345,90 @@ function initVisibleSwipers() {
   });
 }
 
-function initProjectGallery() {
-  const viewport = document.getElementById('projectsGallery');
-  const slides = Array.from(viewport.querySelectorAll('.projects-card'));
-  if (slides.length < 2) return { update() {} };
+function initMarquee() {
+  const marquee = document.querySelector('.projects-marquee');
+  if (!marquee) return { update() {} };
+  const track = marquee.querySelector('.projects-track');
+  const originals = Array.from(track.children);
+  if (originals.length < 2) return { update() {} };
 
-  const controls = document.getElementById('galleryControls');
-  const previous = document.getElementById('projectPrev');
-  const next = document.getElementById('projectNext');
-  const current = document.getElementById('projectCurrent');
-  const total = document.getElementById('projectTotal');
-  let index = 0;
-
-  function positions() {
-    const start = slides[0].offsetLeft;
-    return slides.map(slide => slide.offsetLeft - start);
-  }
-
-  function render() {
-    current.textContent = String(index + 1).padStart(2, '0');
-    total.textContent = String(slides.length).padStart(2, '0');
-    previous.disabled = index === 0;
-    next.disabled = index === slides.length - 1;
-  }
-
-  function goTo(target) {
-    index = Math.max(0, Math.min(target, slides.length - 1));
-    viewport.scrollTo({
-      left: positions()[index],
-      behavior: 'auto'
-    });
-    render();
-  }
-
-  function syncFromScroll() {
-    const points = positions();
-    index = points.reduce((closest, point, candidate) =>
-      Math.abs(point - viewport.scrollLeft) < Math.abs(points[closest] - viewport.scrollLeft)
-        ? candidate : closest, 0);
-    render();
-  }
-
-  previous.addEventListener('click', () => goTo(index - 1));
-  next.addEventListener('click', () => goTo(index + 1));
-  viewport.addEventListener('scroll', syncFromScroll, { passive: true });
-  viewport.addEventListener('keydown', event => {
-    if (event.target !== viewport || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
-    event.preventDefault();
-    goTo(index + (event.key === 'ArrowRight' ? 1 : -1));
+  const firstClone = originals[0].cloneNode(true);
+  const clones = [firstClone];
+  for (let i = 1; i < originals.length; i++) clones.push(originals[i].cloneNode(true));
+  clones.forEach(card => {
+    card.setAttribute('aria-hidden', 'true');
+    card.setAttribute('inert', '');
+    card.querySelectorAll('a, button, [tabindex]').forEach(control => control.tabIndex = -1);
+    track.appendChild(card);
   });
-  window.addEventListener('resize', () => goTo(index));
-  controls.hidden = false;
-  render();
-  return { update() { requestAnimationFrame(() => goTo(index)); } };
+
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let width = 0;
+  let position = 0;
+  let frame = 0;
+  let lastTime = 0;
+  let hovering = false;
+  let focusing = false;
+  let inViewport = true;
+
+  function measure() {
+    width = firstClone.offsetLeft - originals[0].offsetLeft;
+    if (width > 0) position = -((-position) % width);
+    track.style.transform = 'translate3d(' + position + 'px,0,0)';
+  }
+
+  function canRun() {
+    return width > 0 && !motion.matches && !hovering && !focusing && inViewport &&
+      !document.hidden && !document.getElementById('tab-home').classList.contains('hidden');
+  }
+
+  function step(now) {
+    frame = 0;
+    if (!canRun()) return;
+    const elapsed = lastTime ? Math.min(now - lastTime, 100) : 0;
+    lastTime = now;
+    position -= 40 * elapsed / 1000;
+    if (-position >= width) position += width;
+    track.style.transform = 'translate3d(' + position + 'px,0,0)';
+    frame = requestAnimationFrame(step);
+  }
+
+  function update() {
+    if (canRun()) {
+      if (!frame) { lastTime = 0; frame = requestAnimationFrame(step); }
+    } else if (frame) {
+      cancelAnimationFrame(frame);
+      frame = 0;
+    }
+  }
+
+  marquee.addEventListener('mouseenter', () => { hovering = true; update(); });
+  marquee.addEventListener('mouseleave', () => { hovering = false; update(); });
+  marquee.addEventListener('focusin', () => {
+    focusing = true;
+    position = 0;
+    track.style.transform = 'none';
+    update();
+  });
+  marquee.addEventListener('focusout', event => {
+    if (event.relatedTarget && marquee.contains(event.relatedTarget)) return;
+    focusing = false;
+    update();
+  });
+  document.addEventListener('visibilitychange', update);
+  window.addEventListener('resize', () => { measure(); update(); });
+  if (motion.addEventListener) motion.addEventListener('change', update);
+  else motion.addListener(update);
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(entries => {
+      inViewport = entries[0].isIntersecting;
+      update();
+    }).observe(marquee);
+  }
+  if ('ResizeObserver' in window) new ResizeObserver(() => { measure(); update(); }).observe(track);
+  measure();
+  update();
+  return { update };
 }
 
 function initOptionalLibraries() {
@@ -474,7 +503,5 @@ document.addEventListener('click', event => {
 document.getElementById('currentYear').textContent = new Date().getFullYear();
 setLanguage(currentLanguage());
 showTab(currentTabFromHash());
-galleryController = initProjectGallery();
+marqueeController = initMarquee();
 initOptionalLibraries();
-
-
