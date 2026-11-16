@@ -237,7 +237,7 @@ main,.site-footer { margin-left:280px; }
   margin:0;
   color:var(--hero-ink);
   font-family:'Inter',sans-serif;
-  font-size:clamp(110px,calc(35vw - 120px),410px);
+  font-size:clamp(100px,calc(30vw - 105px),350px);
   font-weight:800;
   line-height:.78;
   letter-spacing:-.105em;
@@ -883,7 +883,7 @@ a.card-basic:hover { border:0; box-shadow:none; opacity:.75; }
   main,.site-footer { margin-left:0; }
   .hero-stage { margin-top:66px; min-height:600px; }
   .hero-layout,.hero-copy { min-height:440px; }
-  .hero-copy h1 { font-size:clamp(92px,19vw,190px); }
+  .hero-copy h1 { font-size:clamp(85px,17vw,170px); }
   .tab-panel:not(#tab-home) { padding-top:66px; }
 }
 @media (max-width:767px) {
@@ -901,7 +901,7 @@ a.card-basic:hover { border:0; box-shadow:none; opacity:.75; }
   .hero-copy h1 {
     width:100%;
     margin:0;
-    font-size:clamp(84px,29vw,180px);
+    font-size:clamp(76px,24vw,150px);
   }
   .hero-details { margin-top:72px; }
   .hero-copy [data-i18n="hero.tagline"] {
@@ -1071,3 +1071,4 @@ a.card-basic:hover { border:0; box-shadow:none; opacity:.75; }
     --type-subhead:20px;
   }
 }
+#contact > div > div > a { margin:0; }
