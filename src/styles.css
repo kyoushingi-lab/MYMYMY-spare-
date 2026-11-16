@@ -7,7 +7,10 @@
   --page:#f3f3ef;
   --surface:#f3f3ef;
   --ink:#111110;
-  --muted:#545450;
+  --muted:#111110;
+  --type-body:18px;
+  --type-section:30px;
+  --type-subhead:22px;
   --line:#c9c9c3;
   --line-strong:#777772;
   --hero:#f3f3ef;
@@ -69,7 +72,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible {
   top:0;
   left:0;
   z-index:50;
-  width:240px;
+  width:280px;
   height:100dvh;
   background:var(--sidebar);
   border-right:1px solid var(--line);
@@ -86,14 +89,14 @@ a:focus-visible,button:focus-visible,summary:focus-visible {
   max-width:none;
   height:100%;
   min-height:0;
-  padding:34px 22px 24px;
+  padding:34px 26px 24px;
 }
 .site-brand {
   display:block;
   width:max-content;
   color:var(--ink)!important;
   font-family:'Inter',sans-serif;
-  font-size:26px;
+  font-size:32px;
   line-height:1;
   font-weight:800;
   letter-spacing:-.09em;
@@ -101,7 +104,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible {
 .desktop-nav {
   display:flex;
   flex-direction:column;
-  gap:5px;
+  gap:9px;
   margin:clamp(70px,14vh,150px) 0 auto;
   padding:0;
   list-style:none;
@@ -112,15 +115,15 @@ a:focus-visible,button:focus-visible,summary:focus-visible {
   position:relative;
   display:block;
   width:100%;
-  min-height:48px;
-  padding:10px 8px 10px 38px;
+  min-height:58px;
+  padding:14px 8px 14px 44px;
   border:0;
   border-left:2px solid transparent;
   border-radius:0;
   background:none;
   color:var(--muted);
   text-align:left;
-  font-size:16px;
+  font-size:19px;
   line-height:1.4;
   font-weight:500;
   transition:color .2s,border-color .2s;
@@ -131,11 +134,11 @@ a:focus-visible,button:focus-visible,summary:focus-visible {
 .desktop-nav li:nth-child(4) .tab-link::before { content:'04'; }
 .desktop-nav .tab-link::before {
   position:absolute;
-  top:12px;
-  left:10px;
+  top:17px;
+  left:12px;
   color:var(--muted);
   font-family:'Inter',sans-serif;
-  font-size:12px;
+  font-size:13px;
   font-weight:600;
   letter-spacing:.02em;
 }
@@ -178,7 +181,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible {
   border-radius:0;
   color:var(--muted);
   font-family:'Inter',sans-serif;
-  font-size:11px;
+  font-size:14px;
   font-weight:700;
   letter-spacing:.03em;
 }
@@ -203,7 +206,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible {
 #menuToggle i:empty::before { content:'☰'; }
 #backToTop i:empty::before { content:'↑'; }
 #menuToggle,#mobileMenu { display:none; }
-main,.site-footer { margin-left:240px; }
+main,.site-footer { margin-left:280px; }
 
 /* The opening frame is typographic. The portrait is a signature, not a split hero. */
 .hero-stage {
@@ -234,7 +237,7 @@ main,.site-footer { margin-left:240px; }
   margin:0;
   color:var(--hero-ink);
   font-family:'Inter',sans-serif;
-  font-size:clamp(68px,6.8vw,100px);
+  font-size:clamp(110px,calc(35vw - 120px),410px);
   font-weight:800;
   line-height:.78;
   letter-spacing:-.105em;
@@ -242,7 +245,7 @@ main,.site-footer { margin-left:240px; }
 }
 .hero-details {
   width:min(100%,760px);
-  margin-top:clamp(54px,6vw,95px);
+  margin-top:clamp(32px,4vw,65px);
 }
 .hero-copy [data-i18n="hero.tagline"] {
   max-width:32em;
@@ -880,7 +883,7 @@ a.card-basic:hover { border:0; box-shadow:none; opacity:.75; }
   main,.site-footer { margin-left:0; }
   .hero-stage { margin-top:66px; min-height:600px; }
   .hero-layout,.hero-copy { min-height:440px; }
-  .hero-copy h1 { font-size:clamp(68px,9vw,92px); }
+  .hero-copy h1 { font-size:clamp(92px,19vw,190px); }
   .tab-panel:not(#tab-home) { padding-top:66px; }
 }
 @media (max-width:767px) {
@@ -898,7 +901,7 @@ a.card-basic:hover { border:0; box-shadow:none; opacity:.75; }
   .hero-copy h1 {
     width:100%;
     margin:0;
-    font-size:clamp(58px,14vw,76px);
+    font-size:clamp(84px,29vw,180px);
   }
   .hero-details { margin-top:72px; }
   .hero-copy [data-i18n="hero.tagline"] {
@@ -991,4 +994,80 @@ a.card-basic:hover { border:0; box-shadow:none; opacity:.75; }
   .projects-track { transform:none!important; will-change:auto; }
 }
 
+@media (min-width:1024px) {
+  .lang-btn,#darkToggle { width:50px; min-width:50px; height:50px; }
+}
+/* Shared readable hierarchy across the biography, project notes and travel. */
+.creator-site #tab-home .project-title {
+  color:var(--ink);
+  font-size:var(--type-subhead);
+}
+.creator-site #tab-home .projects-card .p-2 > p:not(.project-title),
+.creator-site #tab-about .tools-grid p {
+  color:var(--ink);
+  font-size:var(--type-body);
+  line-height:1.6;
+}
 
+.creator-site #tab-about .about-copy,
+.creator-site #tab-about .about-copy p,
+.creator-site #tab-about .edu-career-section .card-basic span,
+.creator-site #tab-about .edu-career-section .card-basic p,
+.creator-site #tab-about .cat-layout li,
+.creator-site #tab-about .cat-layout li span,
+.creator-site #tab-about .cat-layout p[data-i18n="me.cat.desc"],
+.creator-site #tab-works .work-groups summary,
+.creator-site #tab-works .work-grid a > p,
+.creator-site #tab-works .portfolio-card h4,
+.creator-site #tab-works .portfolio-card p,
+.creator-site #tab-works .fan-grid p,
+.creator-site #tab-works .goods-section p,
+.creator-site #tab-contact [data-i18n="contact.note"] {
+  color:var(--ink);
+  font-size:var(--type-body);
+  line-height:1.8;
+}
+.creator-site #tab-about .about-copy > p:first-child {
+  font-size:var(--type-body);
+  font-weight:700;
+}
+.creator-site #tab-about .edu-career-section .card-basic span {
+  font-weight:700;
+}
+.creator-site #tab-about .edu-career-section .card-basic p {
+  font-weight:600;
+}
+.creator-site #tab-about .cat-layout h4,
+.creator-site #tab-works .work-groups summary {
+  color:var(--ink);
+  font-size:var(--type-subhead);
+  font-weight:700;
+}
+.creator-site #tab-about .edu-career-section .subsection-title,
+.creator-site #tab-about #tools > .section-title,
+.creator-site #tab-about #me-basic > .section-title,
+.creator-site #tab-about #me-basic .subsection-title,
+.creator-site #tab-works .work-groups > div > .subsection-title,
+.creator-site #tab-works #portfolio > .section-title,
+.creator-site #tab-works #portfolio > .subsection-title,
+.creator-site #tab-works #oshigoods > .section-title,
+.creator-site #tab-works #oshigoods .subsection-title {
+  color:var(--ink);
+  font-size:var(--type-section);
+  line-height:1.4;
+}
+.travel-section > .mb-6 {
+  width:min(100%,760px);
+  margin-inline:auto;
+}
+#me-basic .travel-section > iframe {
+  width:min(100%,760px);
+  margin:22px auto 0;
+}
+@media (max-width:767px) {
+  :root {
+    --type-body:17px;
+    --type-section:26px;
+    --type-subhead:20px;
+  }
+}
